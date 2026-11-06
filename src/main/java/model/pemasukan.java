@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class pemasukan {
 
+    private int idPemasukan;
     private String namaBarang;
     private int jumlah;
     private int harga;
@@ -25,6 +26,10 @@ public class pemasukan {
         this.jumlah = jumlah;
         this.harga = harga;
         this.metodePembayaran = metodePembayaran;
+    }
+
+    public int getIdPemasukan() {
+        return idPemasukan;
     }
 
     public String getNamaBarang() {
@@ -47,41 +52,65 @@ public class pemasukan {
         List<pemasukan> daftarPemasukan = new ArrayList<>();
         Database db = new Database();
         db.connect();
-        ResultSet rs = db.view("SELECT * FROM tabel_pemasukan");
+
         try {
-            while (rs.next()) {
-                daftarPemasukan.add(new pemasukan(rs.getString("Nama Barang"),
-                        rs.getInt("jumlah"), rs.getInt("harga"), rs.getString("Metode Pembayaran")));
+            ResultSet rs = db.view("SELECT * FROM tabel_pemasukan ORDER BY id_pemasukan ASC");
+            if (rs != null) {
+                while (rs.next()) {
+
+                    pemasukan p = new pemasukan(rs.getString("nama_barang"), rs.getInt("jumlah"),
+                            rs.getInt("harga"), rs.getString("metode_pembayaran")
+                    );
+
+                    p.idPemasukan = rs.getInt("id_pemasukan");
+                    daftarPemasukan.add(p);
+                }
+
+                rs.close();
             }
+
         } catch (SQLException e) {
-            System.out.println("Kesalahan saat membaca data: " + e.getMessage());
+            System.out.println("Kesalahan membaca data: " + e.getMessage());
+
+        } finally {
+            db.disconnect();
         }
-        db.disconnect();
+
         return daftarPemasukan;
     }
 
     public void save() {
+
         Database db = new Database();
         db.connect();
-        ResultSet rs = db.view("SELECT * FROM tabel_pemasukan WHERE nama_barang='" + namaBarang + "'");
+
         try {
-            if (rs.next()) {
-                db.query("UPDATE tabel_pemasukan SET jumlah=" + jumlah + ", harga="
-                        + harga + ", metode_pembayaran='" + metodePembayaran + "' WHERE nama_barang='" + namaBarang + "'");
-            } else {
-                db.query("INSERT INTO tabel_pemasukan (nama_Barang, jumlah, harga, metode_pembayaran, metode_pembayaran) VALUES('"
-                        + namaBarang + "'  , '" + jumlah + "'  , " + harga + "  , '" + metodePembayaran + ")");
-            }
-        } catch (SQLException e) {
-            System.out.println("Kesalahan: " + e.getMessage());
+            db.query(
+                    "INSERT INTO tabel_pemasukan "
+                    + "(nama_barang, jumlah, harga, metode_pembayaran) "
+                    + "VALUES (?, ?, ?, ?)",
+                    namaBarang, jumlah, harga, metodePembayaran
+            );
+
+            System.out.println("Transaksi berhasil disimpan!");
+
+        } finally {
+            db.disconnect();
         }
-        db.disconnect();
     }
 
-    public static void delete(String namaBarang) {
+    public static void delete(int idPemasukan) {
+
         Database db = new Database();
         db.connect();
-        db.query("DELETE FROM tabel_pemasukan WHERE namaBarang='" + namaBarang + "'");
-        db.disconnect();
+
+        try {
+            db.query("DELETE FROM tabel_pemasukan WHERE id_pemasukan = ?", idPemasukan);
+
+            System.out.println("Transaksi berhasil dihapus!");
+
+        } finally {
+            db.disconnect();
+        }
     }
 }

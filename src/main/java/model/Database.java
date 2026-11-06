@@ -4,10 +4,66 @@
  */
 package model;
 
+import java.sql.*;
+
 /**
  *
  * @author aisya
  */
 public class Database {
 
+    static final String url = "jdbc:mysql://localhost:3306/projectadpl";
+    static final String user = "root";
+    static final String pass = "Heriska123";
+
+    static Connection conn;
+    public static Statement stmt;
+    public static ResultSet rs;
+
+    public void connect() {
+        try {
+            conn = DriverManager.getConnection(url, user, pass);
+            stmt = conn.createStatement();
+
+            System.out.println("Koneksi database berhasil!");
+        } catch (Exception e) {
+            System.out.println("Koneksi Gagal: " + e.getMessage());
+        }
+    }
+
+    public void query(String sql, Object... params) {
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
+            }
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            System.out.println("Kesalahan Query: " + ex.getMessage());
+        }
+    }
+
+    public ResultSet view(String sql) {
+        try {
+            rs = stmt.executeQuery(sql);
+        } catch (SQLException ex) {
+            System.out.println("Kesalahan View: " + ex.getMessage());
+        }
+
+        return rs;
+    }
+
+    public void disconnect() {
+        try {
+            if (conn != null && !conn.isClosed()) {
+                conn.close();
+            }
+        } catch (SQLException ex) {
+            System.out.println("Kesalahan saat menutup koneksi: " + ex.getMessage());
+        }
+    }
 }
