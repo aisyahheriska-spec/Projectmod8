@@ -52,7 +52,15 @@ public class pemasukanView extends JFrame {
         panelForm.add(btnSimpan);
         panelForm.add(btnHapus);
 
-        tableModel = new DefaultTableModel(new String[]{"Nama Barang", "Jumlah", "Harga", "Metode Pembayaran"}, 0);
+        tableModel = new DefaultTableModel(
+                new String[]{
+                    "ID Pemasukan",
+                    "Nama Barang",
+                    "Jumlah",
+                    "Harga",
+                    "Metode Pembayaran"
+                }, 0
+        );
         table = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(table);
 
