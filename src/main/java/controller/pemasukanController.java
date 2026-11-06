@@ -53,8 +53,8 @@ public class pemasukanController {
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = view.getTable().getSelectedRow();
                 if (selectedRow != -1) {
-                    String kode = (String) view.getTableModel().getValueAt(selectedRow, 0);
-                    pemasukan.delete(kode);
+                    int idPemasukan = (int) view.getTableModel().getValueAt(selectedRow, 0);
+                    pemasukan.delete(idPemasukan);
                     loadTable();
                 } else {
                     JOptionPane.showMessageDialog(view, "Pilih data yang ingin dihapus!");
@@ -66,9 +66,15 @@ public class pemasukanController {
     private void loadTable() {
         DefaultTableModel tableModel = view.getTableModel();
         tableModel.setRowCount(0);
+
         for (pemasukan p : pemasukan.getAllPemasukan()) {
-            tableModel.addRow(new Object[]{p.getNamaBarang(), p.getJumlah(),
-                p.getHarga(), p.getMetodePembayaran()});
+            tableModel.addRow(new Object[]{
+                p.getIdPemasukan(),
+                p.getNamaBarang(),
+                p.getJumlah(),
+                p.getHarga(),
+                p.getMetodePembayaran()
+            });
         }
     }
 

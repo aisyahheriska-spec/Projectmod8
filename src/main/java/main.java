@@ -7,6 +7,14 @@
  *
  * @author aisya
  */
+import controller.pemasukanController;
+import view.pemasukanView;
+
 public class main {
+
+    public static void main(String[] args) {
+        pemasukanView view = new pemasukanView();
+        new pemasukanController(view);
+    }
 
 }

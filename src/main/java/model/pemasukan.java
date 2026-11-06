@@ -80,7 +80,6 @@ public class pemasukan {
     }
 
     public void save() {
-
         Database db = new Database();
         db.connect();
 
@@ -100,7 +99,6 @@ public class pemasukan {
     }
 
     public static void delete(int idPemasukan) {
-
         Database db = new Database();
         db.connect();
 
