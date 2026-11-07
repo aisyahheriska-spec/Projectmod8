@@ -79,19 +79,17 @@ public class pemasukan {
         return daftarPemasukan;
     }
 
-    public void save() {
+    public boolean save() {
         Database db = new Database();
         db.connect();
 
         try {
-            db.query(
+            return db.query(
                     "INSERT INTO tabel_pemasukan "
                     + "(nama_barang, jumlah, harga, metode_pembayaran) "
                     + "VALUES (?, ?, ?, ?)",
                     namaBarang, jumlah, harga, metodePembayaran
             );
-
-            System.out.println("Transaksi berhasil disimpan!");
 
         } finally {
             db.disconnect();
