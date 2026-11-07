@@ -5,9 +5,9 @@
 package view;
 
 import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionListener;
 
 /**
  *
@@ -21,14 +21,21 @@ public class pemasukanView extends JFrame {
     private final JButton btnSimpan, btnHapus;
 
     public pemasukanView() {
+
         setTitle("Pencatatan Pemasukan Transaksi Penjualan");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 450);
         setLocationRelativeTo(null);
+
         setLayout(new BorderLayout());
 
-        JPanel panelForm = new JPanel(new GridLayout(5, 2, 5, 5));
-        panelForm.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel panelForm = new JPanel(
+                new GridLayout(5, 2, 5, 5)
+        );
+
+        panelForm.setBorder(
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        );
 
         panelForm.add(new JLabel("Nama Barang:"));
         textnamaBarang = new JTextField();
@@ -61,12 +68,13 @@ public class pemasukanView extends JFrame {
                     "Metode Pembayaran"
                 }, 0
         );
+
         table = new JTable(tableModel);
+
         JScrollPane scrollPane = new JScrollPane(table);
 
         add(panelForm, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
-        setVisible(true);
     }
 
     public JTextField getTextNamaBarang() {
@@ -108,5 +116,4 @@ public class pemasukanView extends JFrame {
     public void addHapusListener(ActionListener listener) {
         btnHapus.addActionListener(listener);
     }
-
 }

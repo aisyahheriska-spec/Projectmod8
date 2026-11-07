@@ -4,13 +4,13 @@
  */
 package controller;
 
-import model.pemasukan;
+import model.Pemasukan;
+import model.PemasukanRepository;
 import view.pemasukanView;
 
 import javax.swing.*;
-import javax.swing.table.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.table.DefaultTableModel;
+import java.sql.SQLException;
 
 /**
  *
@@ -19,112 +19,166 @@ import java.awt.event.*;
 public class pemasukanController {
 
     private final pemasukanView view;
+    private final PemasukanRepository repository;
 
-    public pemasukanController(pemasukanView view) {
+    public pemasukanController(
+            pemasukanView view,
+            PemasukanRepository repository) {
+
         this.view = view;
+        this.repository = repository;
 
         loadTable();
 
-        view.addSimpanListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    String namaBarang = view.getTextNamaBarang().getText().trim();
-                    String jumlahText = view.getTextJumlah().getText().trim();
-                    String hargaText = view.getTextHarga().getText().trim();
-                    String metodePembayaran = view.getTextMetodePembayaran().getText().trim();
+        view.addSimpanListener(e -> simpanPemasukan());
+        view.addHapusListener(e -> hapusPemasukan());
+    }
 
-                    if (namaBarang.isEmpty()
-                            || jumlahText.isEmpty()
-                            || hargaText.isEmpty()
-                            || metodePembayaran.isEmpty()) {
+    private void simpanPemasukan() {
 
-                        JOptionPane.showMessageDialog(view, "Semua data harus diisi!");
-                        return;
-                    }
+        try {
+            String namaBarang
+                    = view.getTextNamaBarang().getText().trim();
 
-                    int jumlah = Integer.parseInt(jumlahText);
-                    int harga = Integer.parseInt(hargaText);
+            String jumlahText
+                    = view.getTextJumlah().getText().trim();
 
-                    if (jumlah <= 0 || harga < 0) {
-                        JOptionPane.showMessageDialog(view,
-                                "Jumlah harus lebih dari 0 dan harga tidak boleh negatif!"
-                        );
-                        return;
-                    }
+            String hargaText
+                    = view.getTextHarga().getText().trim();
 
-                    pemasukan p = new pemasukan(namaBarang, jumlah, harga, metodePembayaran);
-                    if (p.save()) {
+            String metodePembayaran
+                    = view.getTextMetodePembayaran().getText().trim();
 
-                        JOptionPane.showMessageDialog(view, "Data pemasukan berhasil disimpan!");
+            // Validasi input kosong
+            if (namaBarang.isEmpty()
+                    || jumlahText.isEmpty()
+                    || hargaText.isEmpty()
+                    || metodePembayaran.isEmpty()) {
 
-                        loadTable();
-
-                        view.getTextNamaBarang().setText("");
-                        view.getTextJumlah().setText("");
-                        view.getTextHarga().setText("");
-                        view.getTextMetodePembayaran().setText("");
-
-                    } else {
-                        JOptionPane.showMessageDialog(view, "Gagal menyimpan data pemasukan!");
-                    }
-
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(view, "Jumlah dan harga harus berupa angka!");
-                }
+                JOptionPane.showMessageDialog(
+                        view,
+                        "Semua data harus diisi!"
+                );
+                return;
             }
-        });
 
-        view.addHapusListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            int jumlah = Integer.parseInt(jumlahText);
+            int harga = Integer.parseInt(hargaText);
 
-                int selectedRow
-                        = view.getTable().getSelectedRow();
+            if (jumlah <= 0 || harga < 0) {
 
-                if (selectedRow != -1) {
-
-                    int idPemasukan = (int) view.getTableModel().getValueAt(
-                            selectedRow, 0
-                    );
-
-                    int konfirmasi = JOptionPane.showConfirmDialog(view,
-                            "Apakah kamu yakin ingin menghapus data ini?",
-                            "Konfirmasi Hapus",
-                            JOptionPane.YES_NO_OPTION
-                    );
-
-                    if (konfirmasi == JOptionPane.YES_OPTION) {
-
-                        pemasukan.delete(idPemasukan);
-
-                        loadTable();
-
-                        JOptionPane.showMessageDialog(view, "Permintaan penghapusan telah diproses.");
-                    }
-
-                } else {
-                    JOptionPane.showMessageDialog(view, "Pilih data yang ingin dihapus!");
-                }
+                JOptionPane.showMessageDialog(
+                        view,
+                        "Jumlah harus lebih dari 0 "
+                        + "dan harga tidak boleh negatif!"
+                );
+                return;
             }
-        });
+
+            // Membuat objek Pemasukan
+            Pemasukan pemasukan = new Pemasukan(
+                    namaBarang,
+                    jumlah,
+                    harga,
+                    metodePembayaran
+            );
+
+            // Menyimpan melalui Repository
+            boolean berhasil = repository.save(pemasukan);
+            if (berhasil) {
+                JOptionPane.showMessageDialog(view, "Data pemasukan berhasil disimpan!");
+
+                kosongkanForm();
+                loadTable();
+
+            } else {
+                JOptionPane.showMessageDialog(view, "Data pemasukan gagal disimpan!");
+            }
+
+        } catch (NumberFormatException e) {
+
+            JOptionPane.showMessageDialog(view, "Jumlah dan harga harus berupa angka!");
+
+        } catch (SQLException e) {
+
+            JOptionPane.showMessageDialog(view, "Kesalahan database: " + e.getMessage());
+        }
+    }
+
+    private void hapusPemasukan() {
+
+        int selectedRow = view.getTable().getSelectedRow();
+
+        if (selectedRow == -1) {
+
+            JOptionPane.showMessageDialog(view, "Pilih data yang ingin dihapus!");
+            return;
+        }
+
+        int modelRow = view.getTable().convertRowIndexToModel(selectedRow);
+
+        int idPemasukan = Integer.parseInt(
+                view.getTableModel()
+                        .getValueAt(modelRow, 0).toString()
+        );
+
+        int konfirmasi = JOptionPane.showConfirmDialog(
+                view,
+                "Apakah kamu yakin ingin menghapus data ini?",
+                "Konfirmasi Hapus",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (konfirmasi != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+
+            boolean berhasil = repository.delete(idPemasukan);
+
+            if (berhasil) {
+
+                JOptionPane.showMessageDialog(view, "Data pemasukan berhasil dihapus!");
+
+                loadTable();
+
+            } else {
+
+                JOptionPane.showMessageDialog(view, "Data gagal dihapus atau tidak ditemukan!");
+            }
+
+        } catch (SQLException e) {
+
+            JOptionPane.showMessageDialog(view, "Kesalahan database: " + e.getMessage());
+        }
     }
 
     private void loadTable() {
-        DefaultTableModel tableModel
-                = view.getTableModel();
-
+        DefaultTableModel tableModel = view.getTableModel();
         tableModel.setRowCount(0);
 
-        for (pemasukan p : pemasukan.getAllPemasukan()) {
+        try {
+            for (Pemasukan p : repository.getAll()) {
+                tableModel.addRow(new Object[]{
+                    p.getIdPemasukan(),
+                    p.getNamaBarang(),
+                    p.getJumlah(),
+                    p.getHarga(),
+                    p.getMetodePembayaran()
+                });
+            }
 
-            tableModel.addRow(new Object[]{
-                p.getIdPemasukan(),
-                p.getNamaBarang(),
-                p.getJumlah(),
-                p.getHarga(),
-                p.getMetodePembayaran()
-            });
+        } catch (SQLException e) {
+
+            JOptionPane.showMessageDialog(view, "Gagal memuat data: " + e.getMessage());
         }
+    }
+
+    private void kosongkanForm() {
+        view.getTextNamaBarang().setText("");
+        view.getTextJumlah().setText("");
+        view.getTextHarga().setText("");
+        view.getTextMetodePembayaran().setText("");
     }
 }

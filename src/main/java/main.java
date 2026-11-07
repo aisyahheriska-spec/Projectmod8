@@ -8,13 +8,25 @@
  * @author aisya
  */
 import controller.pemasukanController;
+import model.PemasukanDAO;
+import model.PemasukanRepository;
 import view.pemasukanView;
+
+import javax.swing.SwingUtilities;
 
 public class main {
 
     public static void main(String[] args) {
-        pemasukanView view = new pemasukanView();
-        new pemasukanController(view);
-    }
 
+        SwingUtilities.invokeLater(() -> {
+
+            pemasukanView view = new pemasukanView();
+
+            PemasukanRepository repository = new PemasukanDAO();
+
+            new pemasukanController(view, repository);
+
+            view.setVisible(true);
+        });
+    }
 }

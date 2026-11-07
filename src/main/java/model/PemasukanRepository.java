@@ -4,10 +4,19 @@
  */
 package model;
 
+import java.sql.SQLException;
+import java.util.List;
+
 /**
  *
  * @author aisya
  */
-public class PemasukanRepository {
+public interface PemasukanRepository {
+
+    List<Pemasukan> getAll() throws SQLException;
+
+    boolean save(Pemasukan Pemasukan) throws SQLException;
+
+    boolean delete(int idPemasukan) throws SQLException;
 
 }
