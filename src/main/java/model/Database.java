@@ -31,19 +31,23 @@ public class Database {
         }
     }
 
-    public void query(String sql, Object... params) {
-        try {
-            PreparedStatement ps = conn.prepareStatement(sql);
+    public boolean query(String sql, Object... params) {
+        if (conn == null) {
+            System.out.println("Koneksi database belum tersedia!");
+            return false;
+        }
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
             for (int i = 0; i < params.length; i++) {
                 ps.setObject(i + 1, params[i]);
             }
 
-            ps.executeUpdate();
-            ps.close();
+            return ps.executeUpdate() > 0;
 
         } catch (SQLException ex) {
             System.out.println("Kesalahan Query: " + ex.getMessage());
+            return false;
         }
     }
 
