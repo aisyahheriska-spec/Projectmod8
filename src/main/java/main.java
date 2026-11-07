@@ -8,6 +8,7 @@
  * @author aisya
  */
 import controller.pemasukanController;
+import model.Database;
 import model.PemasukanDAO;
 import model.PemasukanRepository;
 import view.pemasukanView;
@@ -22,7 +23,9 @@ public class main {
 
             pemasukanView view = new pemasukanView();
 
-            PemasukanRepository repository = new PemasukanDAO();
+            Database database = new Database();
+
+            PemasukanRepository repository = new PemasukanDAO(database);
 
             new pemasukanController(view, repository);
 

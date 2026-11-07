@@ -19,8 +19,8 @@ public class PemasukanDAO implements PemasukanRepository {
 
     private final Database database;
 
-    public PemasukanDAO() {
-        this.database = new Database();
+    public PemasukanDAO(Database database) {
+        this.database = database;
     }
 
     @Override
@@ -34,7 +34,6 @@ public class PemasukanDAO implements PemasukanRepository {
         try (Connection conn = database.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-
                 Pemasukan p = new Pemasukan(
                         rs.getInt("id_pemasukan"),
                         rs.getString("nama_barang"),
@@ -58,7 +57,6 @@ public class PemasukanDAO implements PemasukanRepository {
                 + "VALUES (?, ?, ?, ?)";
 
         try (Connection conn = database.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setString(1, Pemasukan.getNamaBarang());
             ps.setInt(2, Pemasukan.getJumlah());
             ps.setInt(3, Pemasukan.getHarga());
@@ -70,9 +68,7 @@ public class PemasukanDAO implements PemasukanRepository {
 
     @Override
     public boolean delete(int idPemasukan) throws SQLException {
-
-        String sql = "DELETE FROM tabel_pemasukan "
-                + "WHERE id_pemasukan = ?";
+        String sql = "DELETE FROM tabel_pemasukan " + "WHERE id_pemasukan = ?";
 
         try (Connection conn = database.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
